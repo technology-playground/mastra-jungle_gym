@@ -1,4 +1,3 @@
-// src/tools/chunkAudio.ts
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import fs from "fs";
@@ -30,8 +29,8 @@ export const chunkAudio = createTool({
       throw new Error("No fileName provided to chunkAudio");
     }
 
-    const inputDir = path.resolve(process.cwd(), "data/audioInput");
-    const chunksDir = path.resolve(process.cwd(), "data/audioChunks");
+    const inputDir = path.resolve(process.cwd(), "../../data/audioInput");
+    const chunksDir = path.resolve(process.cwd(), "../../data/audioChunks");
     const chunkLength = 300; // seconds
 
     if (!fs.existsSync(inputDir)) {

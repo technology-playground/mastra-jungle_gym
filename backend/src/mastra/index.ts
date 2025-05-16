@@ -1,4 +1,3 @@
-// src/mastra/index.ts
 import { Mastra } from "@mastra/core";
 import { LibSQLStore } from "@mastra/libsql";
 
@@ -13,7 +12,7 @@ export const mastra = new Mastra({
   tools: {
     runAudioPipeline,
   },
-  // ← here: register your vNext workflows
+  // Register vNext workflows here:
   vnext_workflows: {
     "audio-transcription": audioWorkflow,
   },

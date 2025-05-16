@@ -1,9 +1,8 @@
-// src/mastra/workflows/audioTranscription.ts
 import { createWorkflow, createStep } from "@mastra/core/workflows/vNext";
 import { z } from "zod";
 import { chunkAudio } from "../tools/chunkAudio";
 
-// 1. Wrap your tool as a vNext step
+// Wrap the old tool as a vNext step
 const chunkAudioStep = createStep(chunkAudio);
 
 export const audioWorkflow = createWorkflow({
@@ -16,7 +15,8 @@ export const audioWorkflow = createWorkflow({
       .array(z.string())
       .describe("List of generated audio chunk filenames"),
   }),
-  steps: [chunkAudioStep], // <-- declare your steps for TS safety
+  steps: [chunkAudioStep],
 })
-  .then(chunkAudioStep) // <-- only one argument here
+  // chain your steps in order
+  .then(chunkAudioStep)
   .commit();

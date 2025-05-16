@@ -1,5 +1,4 @@
 // src/tools/runAudioPipeline.ts
-import path from "path";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 
@@ -14,19 +13,48 @@ export const runAudioPipeline = createTool({
   }),
   execute: async ({ context: { fileName }, mastra }) => {
     if (!fileName) {
-      console.error("❌ runAudioPipeline: context.fileName is", fileName);
+      console.error("❌ runAudioPipeline: no fileName in context");
       throw new Error("No fileName provided to runAudioPipeline");
     }
-    // 1) grab the workflow
-    const wf = mastra!.getWorkflow("audio-transcription");
-    if (!wf) throw new Error("Workflow not found");
+    if (!mastra) {
+      throw new Error("Mastra instance missing in execution context");
+    }
 
-    // 2) pass it in *exactly* under triggerData
+    // 1) grab your vNext workflow
+    const wf = mastra.vnext_getWorkflow("audio-transcription");
+    if (!wf) {
+      console.error("❌ runAudioPipeline: workflow not found");
+      throw new Error("Workflow not found: audio-transcription");
+    }
+
+    // 2) create a run to get runId and start()
     const run = wf.createRun();
-    const { results } = await run.start({
-      input: { fileName }, // ← pass your workflow inputs here
-    });
-    // ...
-    return { report: results };
+    console.log(
+      `▶️ Starting workflow 'audio-transcription' (runId=${run.runId}) with fileName=${fileName}`
+    );
+
+    // 3) kick it off with inputData
+    let result;
+    try {
+      result = await run.start({
+        inputData: { fileName },
+      });
+    } catch (err: any) {
+      console.error("❌ runAudioPipeline.start() threw:", err);
+      throw err;
+    }
+
+    // 4) handle failure vs success
+    if (result.status === "failed") {
+      console.error("❌ audio-transcription failed:", result.error);
+      throw result.error;
+    }
+    if (result.status !== "success") {
+      console.error("❌ unexpected status:", result.status);
+      throw new Error(`Unexpected workflow status: ${result.status}`);
+    }
+
+    console.log("✅ audio-transcription succeeded; report:", result.result);
+    return { report: result.result };
   },
 });
